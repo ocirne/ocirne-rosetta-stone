@@ -17,7 +17,7 @@ def hardcoded(n: int) -> int:
 
 
 def recursive_by_definition(n: int) -> int:
-    """ see https://en.wikipedia.org/wiki/Fibonacci_sequence#Definition """
+    """see https://en.wikipedia.org/wiki/Fibonacci_sequence#Definition"""
     if n == 0:
         return 0
     if n == 1:
@@ -32,8 +32,8 @@ def recursive_variant(n: int) -> int:
 
 
 # Proper implementation of @cache is this, but timeit would always use the cached results
-#@functools.cache
-#def lru_cached_recursive(n: int) -> int:
+# @functools.cache
+# def lru_cached_recursive(n: int) -> int:
 #    if n < 2:
 #        return n
 #    return lru_cached_recursive(n - 1) + lru_cached_recursive(n - 2)
@@ -59,7 +59,7 @@ def iterative(n: int) -> int:
 
 
 root5 = sqrt(5)
-phi = (1+root5)/2
+phi = (1 + root5) / 2
 
 
 def binet(n: int) -> int:
@@ -76,7 +76,9 @@ if __name__ == "__main__":
 
     print("f(1), 10.000 runs")
     print("        hardcoded:", timeit(lambda: hardcoded(1), number=10000))
-    print("    by definition:", timeit(lambda: recursive_by_definition(1), number=10000))
+    print(
+        "    by definition:", timeit(lambda: recursive_by_definition(1), number=10000)
+    )
     print("recursive variant:", timeit(lambda: recursive_variant(1), number=10000))
     print("       own cached:", timeit(lambda: OwnCached().f(1), number=10000))
     print("        iterative:", timeit(lambda: iterative(1), number=10000))
@@ -92,7 +94,9 @@ if __name__ == "__main__":
 
     print("f(10), 10.000 runs")
     print("        hardcoded:", timeit(lambda: hardcoded(10), number=10000))
-    print("    by definition:", timeit(lambda: recursive_by_definition(10), number=10000))
+    print(
+        "    by definition:", timeit(lambda: recursive_by_definition(10), number=10000)
+    )
     print("recursive variant:", timeit(lambda: recursive_variant(10), number=10000))
     print("           cached:", timeit(lambda: OwnCached().f(10), number=10000))
     print("        iterative:", timeit(lambda: iterative(10), number=10000))
