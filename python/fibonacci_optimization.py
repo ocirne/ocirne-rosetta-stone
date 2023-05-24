@@ -1,4 +1,3 @@
-from functools import cache
 from math import sqrt
 from timeit import timeit
 
@@ -32,11 +31,24 @@ def recursive_variant(n: int) -> int:
     return recursive_variant(n - 1) + recursive_variant(n - 2)
 
 
-@cache
-def cached_recursive(n: int) -> int:
-    if n < 2:
-        return n
-    return cached_recursive(n - 1) + cached_recursive(n - 2)
+# Proper implementation of @cache is this, but timeit would always use the cached results
+#@functools.cache
+#def lru_cached_recursive(n: int) -> int:
+#    if n < 2:
+#        return n
+#    return lru_cached_recursive(n - 1) + lru_cached_recursive(n - 2)
+
+
+class OwnCached:
+    def __init__(self):
+        self.cache = {}
+
+    def f(self, n: int) -> int:
+        if n < 2:
+            return n
+        if n not in self.cache:
+            self.cache[n] = self.f(n - 1) + self.f(n - 2)
+        return self.cache[n]
 
 
 def iterative(n: int) -> int:
@@ -58,7 +70,7 @@ if __name__ == "__main__":
     assert hardcoded(1) == F1
     assert recursive_by_definition(1) == F1
     assert recursive_variant(1) == F1
-    assert cached_recursive(1) == F1
+    assert OwnCached().f(1) == F1
     assert iterative(1) == F1
     assert binet(1) == F1
 
@@ -66,7 +78,7 @@ if __name__ == "__main__":
     print("        hardcoded:", timeit(lambda: hardcoded(1), number=10000))
     print("    by definition:", timeit(lambda: recursive_by_definition(1), number=10000))
     print("recursive variant:", timeit(lambda: recursive_variant(1), number=10000))
-    print("        cached(!):", timeit(lambda: cached_recursive(1), number=10000))  # TODO end result is also cached!
+    print("       own cached:", timeit(lambda: OwnCached().f(1), number=10000))
     print("        iterative:", timeit(lambda: iterative(1), number=10000))
     print("            binet:", timeit(lambda: binet(1), number=10000))
     print()
@@ -74,7 +86,7 @@ if __name__ == "__main__":
     assert hardcoded(10) == F10
     assert recursive_by_definition(10) == F10
     assert recursive_variant(10) == F10
-    assert cached_recursive(10) == F10
+    assert OwnCached().f(10) == F10
     assert iterative(10) == F10
     assert binet(10) == F10
 
@@ -82,14 +94,14 @@ if __name__ == "__main__":
     print("        hardcoded:", timeit(lambda: hardcoded(10), number=10000))
     print("    by definition:", timeit(lambda: recursive_by_definition(10), number=10000))
     print("recursive variant:", timeit(lambda: recursive_variant(10), number=10000))
-    print("        cached(!):", timeit(lambda: cached_recursive(10), number=10000))  # TODO end result is also cached!
+    print("           cached:", timeit(lambda: OwnCached().f(10), number=10000))
     print("        iterative:", timeit(lambda: iterative(10), number=10000))
     print("            binet:", timeit(lambda: binet(10), number=10000))
     print()
 
     assert recursive_by_definition(25) == F25
     assert recursive_variant(25) == F25
-    assert cached_recursive(25) == F25
+    assert OwnCached().f(25) == F25
     assert iterative(25) == F25
     assert binet(25) == F25
 
@@ -97,40 +109,36 @@ if __name__ == "__main__":
     print("        hardcoded: -- not available")
     print("    by definition:", timeit(lambda: recursive_by_definition(25), number=100))
     print("recursive variant:", timeit(lambda: recursive_variant(25), number=100))
-    print("        cached(!):", timeit(lambda: cached_recursive(25), number=100))
+    print("           cached:", timeit(lambda: OwnCached().f(25), number=100))
     print("        iterative:", timeit(lambda: iterative(25), number=100))
     print("            binet:", timeit(lambda: binet(25), number=100))
     print()
 
-    assert cached_recursive(50) == F50
+    assert OwnCached().f(50) == F50
     assert iterative(50) == F50
     assert binet(50) == F50
 
     print("f(50), 100 runs")
     print("    by definition: -- too slow")
     print("recursive variant: -- too slow")
-    print("        cached(!):", timeit(lambda: cached_recursive(30), number=100))
-    print("        iterative:", timeit(lambda: iterative(30), number=100))
-    print("            binet:", timeit(lambda: binet(30), number=100))
+    print("           cached:", timeit(lambda: OwnCached().f(50), number=100))
+    print("        iterative:", timeit(lambda: iterative(50), number=100))
+    print("            binet:", timeit(lambda: binet(50), number=100))
     print()
 
-    assert cached_recursive(100) == F100
+    assert OwnCached().f(100) == F100
     assert iterative(100) == F100
+    # binet is wrong
 
     print("f(100), 100 runs")
-    print("        cached(!):", timeit(lambda: cached_recursive(100), number=100))
+    print("           cached:", timeit(lambda: OwnCached().f(100), number=100))
     print("        iterative:", timeit(lambda: iterative(100), number=100))
     print("         binet(!):", timeit(lambda: binet(100), number=100))
     print()
 
     print("binet is faster, but wrong")
-    f100_cache_recursive = cached_recursive(100)
-    f100_iterative = iterative(100)
-    f100_binet = binet(100)
-
-    print(f100_cache_recursive, f100_cache_recursive == F100)
-    print(f100_iterative, f100_iterative == F100)
-    print(f100_binet, f100_binet == F100)
+    print("    f(100)", F100)
+    print("binet(100)", binet(100))
     print()
 
     assert iterative(1000) == F1000
@@ -141,6 +149,6 @@ if __name__ == "__main__":
     print("         binet(!): -- wrong results")
     print()
 
-    print("f(10000), 10 runs")
-    print("        iterative:", timeit(lambda: iterative(10_000), number=10))
+    print("f(10000), 100 runs")
+    print("        iterative:", timeit(lambda: iterative(10_000), number=100))
     print()
