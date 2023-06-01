@@ -7,6 +7,6 @@ internal class Problem8Test {
 
     @Test
     fun `can solve problem 8 with example`() {
-        Problem8(4) shouldBe 5832
+        Problem8().solve(4) shouldBe 5832
     }
 }
