@@ -11,72 +11,55 @@ class GildedRose(var items: List<Item>) {
             "Sulfuras, Hand of Ragnaros" -> LegendaryItem(item)
             "Aged Brie" -> CheeseItem(item)
             "Backstage passes to a TAFKAL80ETC concert" -> BackstagePassItem(item)
-            else -> OrdinaryItem(item)
-        }.age()
+            else -> AgingItem(item)
+        }.updateQuality()
     }
 
-    abstract class AgingItem(val item: Item) {
-        abstract fun age()
-    }
+    open class AgingItem(val item: Item) {
 
-    class OrdinaryItem(item: Item): AgingItem(item) {
-        override fun age() {
-            if (item.quality > 0) {
-                item.quality = item.quality - 1
-            }
+        fun updateQuality() {
+            age()
+            after()
+        }
 
-            item.sellIn = item.sellIn - 1
+        open fun after() {
+            item.quality = (item.quality + getDeltaQuality()).coerceIn(0, 50)
+        }
 
-            if (item.sellIn < 0) {
-                if (item.quality > 0) {
-                    item.quality = item.quality - 1
-                }
-            }
+        open fun getDeltaQuality(): Int {
+            return if (item.sellIn < 0) -2 else -1
+        }
+
+        open fun age() {
+            item.sellIn--
         }
     }
 
     class CheeseItem(item: Item): AgingItem(item) {
-        override fun age() {
-            if (item.quality < 50) {
-                item.quality = item.quality + 1
 
-            }
-            item.sellIn = item.sellIn - 1
-            if (item.sellIn < 0) {
-                if (item.quality < 50) {
-                    item.quality = item.quality + 1
-                }
-            }
+        override fun getDeltaQuality(): Int {
+            return if (item.sellIn < 0) +2 else -1
         }
     }
 
     class BackstagePassItem(item: Item): AgingItem(item) {
-        override fun age() {
-            if (item.quality < 50) {
-                item.quality = item.quality + 1
 
-                if (item.sellIn < 11) {
-                    if (item.quality < 50) {
-                        item.quality = item.quality + 1
-                    }
-                }
-
-                if (item.sellIn < 6) {
-                    if (item.quality < 50) {
-                        item.quality = item.quality + 1
-                    }
-                }
-            }
-
-            item.sellIn = item.sellIn - 1
-
-            if (item.sellIn < 0) {
-                item.quality = 0
+        override fun getDeltaQuality(): Int {
+            return when {
+                item.sellIn < 0 -> -50
+                item.sellIn < 5 -> +3
+                item.sellIn < 10 -> +2
+                else -> +1
             }
         }
     }
 
     class LegendaryItem(item: Item): AgingItem(item) {
+
+        override fun after() {
+            // do nothing
+        }
+
         override fun age() {
             // do nothing
         }
