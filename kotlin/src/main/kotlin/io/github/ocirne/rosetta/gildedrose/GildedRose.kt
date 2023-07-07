@@ -11,6 +11,7 @@ class GildedRose(var items: List<Item>) {
             "Sulfuras, Hand of Ragnaros" -> LegendaryItem(item)
             "Aged Brie" -> CheeseItem(item)
             "Backstage passes to a TAFKAL80ETC concert" -> BackstagePassItem(item)
+            "Conjured Mana Cake" -> ConjuredItem(item)
             else -> AgingItem(item)
         }.updateQuality()
     }
@@ -38,7 +39,14 @@ class GildedRose(var items: List<Item>) {
     class CheeseItem(item: Item): AgingItem(item) {
 
         override fun getDeltaQuality(): Int {
-            return if (item.sellIn < 0) +2 else -1
+            return if (item.sellIn < 0) +2 else +1
+        }
+    }
+
+    class ConjuredItem(item: Item): AgingItem(item) {
+
+        override fun getDeltaQuality(): Int {
+            return if (item.sellIn < 0) -4 else -2
         }
     }
 
