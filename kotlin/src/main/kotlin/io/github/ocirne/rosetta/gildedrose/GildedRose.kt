@@ -8,31 +8,27 @@ class GildedRose(var items: List<Item>) {
 
     fun updateQuality(item: Item) {
         when (item.name) {
-            "Sulfuras, Hand of Ragnaros" -> LegendaryItem(item)
+            "Sulfuras, Hand of Ragnaros" -> LegendaryItem()
             "Aged Brie" -> CheeseItem(item)
             "Backstage passes to a TAFKAL80ETC concert" -> BackstagePassItem(item)
             "Conjured Mana Cake" -> ConjuredItem(item)
             else -> AgingItem(item)
-        }.updateQuality()
+        }.age()
     }
 
-    open class AgingItem(val item: Item) {
+    interface Aging {
+        fun age()
+    }
 
-        fun updateQuality() {
-            age()
-            after()
-        }
+    open class AgingItem(val item: Item): Aging {
 
-        open fun after() {
+        override fun age() {
+            item.sellIn--
             item.quality = (item.quality + getDeltaQuality()).coerceIn(0, 50)
         }
 
         open fun getDeltaQuality(): Int {
             return if (item.sellIn < 0) -2 else -1
-        }
-
-        open fun age() {
-            item.sellIn--
         }
     }
 
@@ -62,11 +58,7 @@ class GildedRose(var items: List<Item>) {
         }
     }
 
-    class LegendaryItem(item: Item): AgingItem(item) {
-
-        override fun after() {
-            // do nothing
-        }
+    class LegendaryItem: Aging {
 
         override fun age() {
             // do nothing
