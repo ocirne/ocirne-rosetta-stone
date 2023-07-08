@@ -22,7 +22,10 @@ def ingredients_merger_itertools(list1, list2):
     """
     sorted_ingredients = sorted(list1 + list2, key=lambda i: i.name)
     groups = groupby(sorted_ingredients, key=lambda i: i.name)
-    return [Ingredient(name, sum(i.amount for i in ingredients)) for name, ingredients in groups]
+    return [
+        Ingredient(name, sum(i.amount for i in ingredients))
+        for name, ingredients in groups
+    ]
 
 
 def ingredients_merger_collections(list1, list2):

@@ -1,4 +1,3 @@
-
 def f(x, y):
     while x:
         if x & 1:
@@ -13,4 +12,4 @@ def mul(x: int, y: int) -> int:
 
 for i in range(101):
     for j in range(101):
-        assert i*j == mul(i, j)
+        assert i * j == mul(i, j)
