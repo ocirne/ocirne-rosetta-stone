@@ -16,8 +16,18 @@ def handle_item(item):
         handle_backstage_pass(item)
     elif item.name == "Sulfuras, Hand of Ragnaros":
         handle_legendary(item)
+    elif item.name == "Conjured Mana Cake":
+        handle_conjured(item)
     else:
         handle_default(item)
+
+
+def handle_aging_item(item, get_delta):
+    """
+    Decrease the sell_in and change the quality by the delta.
+    """
+    item.sell_in -= 1
+    item.quality = limit_to(item.quality + get_delta(item.sell_in), 0, 50)
 
 
 def handle_default(item):
@@ -38,9 +48,7 @@ def handle_default(item):
     >>> aging(Item('foo', 3, 60), handle_default)
     foo, 2, 50
     """
-    item.sell_in -= 1
-    delta = -2 if item.sell_in < 0 else -1
-    item.quality = limit_to(item.quality + delta, 0, 50)
+    handle_aging_item(item, lambda sell_in: -2 if sell_in < 0 else -1)
 
 
 def handle_cheese(item):
@@ -57,9 +65,23 @@ def handle_cheese(item):
     >>> aging(Item('foo', 0, 49), handle_cheese)
     foo, -1, 50
     """
-    item.sell_in -= 1
-    delta = 2 if item.sell_in < 0 else 1
-    item.quality = limit_to(item.quality + delta, 0, 50)
+    handle_aging_item(item, lambda sell_in: 2 if sell_in < 0 else 1)
+
+
+def handle_conjured(item):
+    """
+    - "Conjured" items degrade in Quality twice as fast as normal items
+
+    >>> aging(Item('foo', 3, 4), handle_conjured)
+    foo, 2, 2
+    >>> aging(Item('foo', 0, 4), handle_conjured)
+    foo, -1, 0
+    >>> aging(Item('foo', 3, 0), handle_conjured)
+    foo, 2, 0
+    >>> aging(Item('foo', 0, 1), handle_conjured)
+    foo, -1, 0
+    """
+    handle_aging_item(item, lambda sell_in: -4 if sell_in < 0 else -2)
 
 
 def handle_backstage_pass(item):
@@ -82,16 +104,18 @@ def handle_backstage_pass(item):
     >>> aging(Item('foo', -1, 20), handle_backstage_pass)
     foo, -2, 0
     """
-    item.sell_in -= 1
-    if item.sell_in < 0:
-        delta = -50
-    elif item.sell_in < 5:
-        delta = 3
-    elif item.sell_in < 10:
-        delta = 2
+    handle_aging_item(item, delta_backstage_passes)
+
+
+def delta_backstage_passes(sell_in):
+    if sell_in < 0:
+        return -50
+    elif sell_in < 5:
+        return 3
+    elif sell_in < 10:
+        return 2
     else:
-        delta = 1
-    item.quality = limit_to(item.quality + delta, 0, 50)
+        return 1
 
 
 def handle_legendary(_):
